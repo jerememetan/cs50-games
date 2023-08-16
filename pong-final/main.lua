@@ -240,18 +240,18 @@ function love.update(dt)
 
     --Auto Play
     if love.keyboard.isDown('x') then
-        if ball.y < player1.y +2 then
+        if ball.y < player1.y + player1.height/4 then
         player1.dy = -PADDLE_SPEED
-       elseif ball.y > player1.y +18 then
+       elseif ball.y > player1.y + player1.height/4 *3 then
        player1.dy = PADDLE_SPEED
        else
         player1.dy = 0
        end
     end
 
-    if ball.y < player2.y +3 and ball.dx > 0 then
+    if ball.y < player2.y + player2.height/4 and ball.dx > 0 then
          player2.dy = -PADDLE_SPEED
-        elseif ball.y > player2.y +17 and ball.dx > 0 then
+        elseif ball.y > player2.y + player2.height/4 *3 and ball.dx > 0 then
         player2.dy = PADDLE_SPEED
         else
          player2.dy = 0
