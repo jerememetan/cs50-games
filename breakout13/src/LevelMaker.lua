@@ -38,7 +38,7 @@ function LevelMaker.createMap(level)
 
     -- randomly choose the number of columns, ensuring odd
     local numCols = math.random(7, 13)
-    numCols = numCols % 2 == 0 and (numCols + 1) or numCols
+    numCols = numCols % 2 == 0 and (numCols + 1) or numCols --This is to check for odd number of rows i think
 
     -- highest possible spawned brick color in this level; ensure we
     -- don't go above 3
@@ -47,9 +47,9 @@ function LevelMaker.createMap(level)
     -- highest color of the highest tier, no higher than 5
     local highestColor = math.min(5, level % 5 + 3)
 
-    local powerupTotal = 1
+    local powerupTotal = math.random(level * 10, level * 20)
 
-
+    
 
 
     -- lay out bricks such that they touch each other and fill the space
@@ -124,7 +124,12 @@ function LevelMaker.createMap(level)
                 b.tier = solidTier
             end 
 
-            b.containsPowerup = true
+            if powerupTotal > 0 then --randomize spawning of powerups
+                local position = math.random(table.maxn(bricks)) 
+                local b = bricks[position] 
+                b.containsPowerup = true
+                powerupTotal = powerupTotal - 1
+            end
 
             table.insert(bricks, b)
 
@@ -132,12 +137,13 @@ function LevelMaker.createMap(level)
             ::continue::
         end
 
+
+        
+    
     end 
-
-
-    local position = math.random(table.maxn(bricks) -1,table.maxn(bricks))
-    local b = bricks[position] 
-    b.containsPowerup = true
+    
+    
+    
     
 
 

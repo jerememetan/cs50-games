@@ -28,6 +28,9 @@ function PlayState:enter(params)
     self.highScores = params.highScores
     self.ball = params.ball
     self.level = params.level
+
+
+    
     
    
 
@@ -56,6 +59,7 @@ function PlayState:update(dt)
     self.paddle:update(dt)
     self.ball:update(dt)
    
+   
 
     if self.ball:collides(self.paddle) then
         -- raise ball above paddle in case it goes below it, then reverse dy
@@ -78,6 +82,9 @@ function PlayState:update(dt)
         gSounds['paddle-hit']:play()
     end
 
+
+
+
     -- detect collision across all bricks with the ball
     for k, brick in pairs(self.bricks) do
 
@@ -89,7 +96,7 @@ function PlayState:update(dt)
 
             
 
-            -- trigger the brick's hit function, which removes it from play
+            -- trigger the brick's hit function, which removes it from play and generate powerup
             brick:hit()
 
             -- if we have enough points, recover a point of health
@@ -167,10 +174,19 @@ function PlayState:update(dt)
             -- only allow colliding with one brick, for corners
             break
         end
-        
-        brick.powerup:update(dt)
-        
+
+        if brick.powerup.inPlay then
+            if brick.powerup:collides(self.paddle) then
+                brick.powerup:hit()
+                Ball:render()
+                                         --check for what powerup it hit
+                                         --spawn a new ball on the screen
+                brick.powerup.inPlay = false
+            end
+        end
     end
+
+    
 
 
     -- if ball goes below bounds, revert to serve state and decrease health
@@ -196,7 +212,7 @@ function PlayState:update(dt)
         end
     end
 
-
+    
     -- for rendering particle systems
     for k, brick in pairs(self.bricks) do
         brick:update(dt)
@@ -216,10 +232,13 @@ function PlayState:render()
     -- render all particle systems
     for k, brick in pairs(self.bricks) do
         brick:renderParticles()
+        brick:renderPowerup()
     end
 
     self.paddle:render()
     self.ball:render()
+
+
 
     renderScore(self.score)
     renderHealth(self.health)
@@ -228,9 +247,6 @@ function PlayState:render()
     if self.paused then
         love.graphics.setFont(gFonts['large'])
         love.graphics.printf("PAUSED", 0, VIRTUAL_HEIGHT / 2 - 16, VIRTUAL_WIDTH, 'center')
-
-        p = Powerup(3)
-        p:render()
     end
 end
 

@@ -12,9 +12,7 @@
     the ball will bounce away depending on the angle of collision. When all
     bricks are cleared in the current map, the player should be taken to a new
     layout of bricks.
-]]
-
-Brick = Class{}
+]] Brick = Class {}
 
 -- some of the colors in our palette (to be used with particle systems)
 paletteColors = {
@@ -54,12 +52,12 @@ function Brick:init(x, y)
     -- used for coloring and score calculation
     self.tier = 0
     self.color = 1
-    
+
     self.x = x
     self.y = y
     self.width = 32
     self.height = 16
-    
+
     -- used to determine whether this brick should be rendered
     self.inPlay = true
 
@@ -79,9 +77,8 @@ function Brick:init(x, y)
     -- spread of particles; normal looks more natural than uniform
     self.psystem:setEmissionArea('normal', 10, 10)
 
-    self.containsPowerup = true
-    self.powerup = Powerup(2)
-    self.powerup.skin = 1
+    self.containsPowerup = false
+    self.powerup = Powerup(9)
 end
 
 --[[
@@ -92,21 +89,20 @@ function Brick:hit()
     -- set the particle system to interpolate between two colors; in this case, we give
     -- it our self.color but with varying alpha; brighter for higher tiers, fading to 0
     -- over the particle's lifetime (the second color)
-    p = Powerup(3)
-    p:render()
-    self.powerup:render()
-    
 
-    self.psystem:setColors(
-        paletteColors[self.color].r / 255,
-        paletteColors[self.color].g / 255,
-        paletteColors[self.color].b / 255,
-        55 * (self.tier + 1) / 255,
-        paletteColors[self.color].r / 255,
-        paletteColors[self.color].g / 255,
-        paletteColors[self.color].b / 255,
-        0
-    )
+    if self.containsPowerup == true then
+
+        self.powerup.x = self.x
+        self.powerup.y = self.y
+        self.powerup.inPlay = true
+        self.containsPowerup = false
+
+    else
+    end
+
+    self.psystem:setColors(paletteColors[self.color].r / 255, paletteColors[self.color].g / 255,
+        paletteColors[self.color].b / 255, 55 * (self.tier + 1) / 255, paletteColors[self.color].r / 255,
+        paletteColors[self.color].g / 255, paletteColors[self.color].b / 255, 0)
     self.psystem:emit(64)
 
     -- sound on hit
@@ -119,20 +115,46 @@ function Brick:hit()
         if self.color == 1 then
             self.tier = self.tier - 1
             self.color = 5
+
+            -- if self.containsPowerup == true then
+
+            --     self.powerup.x = self.x
+            --     self.powerup.y = self.y
+            --     self.powerup.inPlay = true
+
+            -- else
+
+            --     self.containsPowerup = false
+            -- end
+
         else
             self.color = self.color - 1
+
         end
     else
         -- if we're in the first tier and the base color, remove brick from play
         if self.color == 1 then
             self.inPlay = false
+            -- if self.containsPowerup == true then
+
+            --     self.powerup.x = self.x
+            --     self.powerup.y = self.y
+            --     self.powerup.inPlay = true
+
+            --     self.containsPowerup = false
+            -- end
         else
             self.color = self.color - 1
+            -- if self.containsPowerup == true then
+
+            --     self.powerup.x = self.x
+            --     self.powerup.y = self.y
+            --     self.powerup.inPlay = true
+
+            --     self.containsPowerup = false
+            -- end
         end
     end
-
-    
-
 
     -- play a second layer sound if the brick is destroyed
     if not self.inPlay then
@@ -148,11 +170,10 @@ end
 
 function Brick:render()
     if self.inPlay then
-        love.graphics.draw(gTextures['main'], 
+        love.graphics.draw(gTextures['main'],
             -- multiply color by 4 (-1) to get our color offset, then add tier to that
             -- to draw the correct tier and color brick onto the screen
-            gFrames['bricks'][1 + ((self.color - 1) * 4) + self.tier],
-            self.x, self.y)
+            gFrames['bricks'][1 + ((self.color - 1) * 4) + self.tier], self.x, self.y)
     end
 end
 
@@ -164,5 +185,8 @@ function Brick:renderParticles()
     love.graphics.draw(self.psystem, self.x + 16, self.y + 8)
 end
 
-
- 
+function Brick:renderPowerup()
+    if self.powerup.inPlay == true then
+        self.powerup:render()
+    end
+end

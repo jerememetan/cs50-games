@@ -91,3 +91,4 @@ function Ball:render()
     love.graphics.draw(gTextures['main'], gFrames['balls'][self.skin],
         self.x, self.y)
 end
+
